@@ -212,9 +212,59 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        best_move = (-1, -1)
 
+        utility = float("-inf")
+        legal_moves = game.get_legal_moves()
+
+        foreach(move in enumerate(legal_moves)):
+            new_utility = max(utility, min_value(game.forecast_move(move)))
+            if(new_utility > utility):
+                utility = new_utility
+                best_move = move
+
+        return best_move
+
+    def max_value(self, game):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        active_player = game.active_player()
+
+        game_over = game.is_winner(active_player)
+        game_over = game_over or game.is_loser(active_player)
+        game_over = game_over or (len(game.get_blank_spaces() == 0)) # TODO: is this correct?
+
+        if(game_over):
+            return game.utility(active_player) # am I supposed to use self.score here?
+        
+        utility = float("-inf")
+
+        legal_moves = game.get_legal_moves(active_player)
+
+        foreach(move in enumerate(legal_moves)):
+            utility = max(utility, min_value(game.forecast_move(move)))
+        
+        return utility
+
+    def min_value(self, game):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        active_player = game.active_player()
+        game_over = game.is_winner(active_player) or game.is_loser(active_player)
+
+        if(game_over):
+            return game.utility(active_player) # am I supposed to use self.score here?
+
+        utility = float("inf")
+
+        legal_moves = game.get_legal_moves(active_player)
+
+        foreach(move in enumerate(legal_moves)):
+            utility = min(utility, max_value(game.forecast_move(move)))
+        
+        return utility
 
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
