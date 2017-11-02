@@ -168,7 +168,53 @@ class MinimaxPlayer(IsolationPlayer):
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
+        print("Best move is: " + str(best_move))
         return best_move
+
+    def max_value(self, game):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        active_player = game.active_player
+
+        game_over = game.is_winner(active_player)
+        game_over = game_over or game.is_loser(active_player)
+        game_over = game_over or (len(game.get_blank_spaces()) == 0) # TODO: is this correct?
+
+        if(game_over):
+            return game.utility(active_player) # am I supposed to use self.score here?
+        
+        utility = float("-inf")
+
+        legal_moves = game.get_legal_moves(active_player)
+
+        for index, move in enumerate(legal_moves):
+            forecast = game.forecast_move(move)
+            utility = max(utility, self.min_value(forecast))
+        
+        return utility
+
+    def min_value(self, game):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        active_player = game.active_player
+        game_over = game.is_winner(active_player)
+        game_over = game_over or game.is_loser(active_player)
+        game_over = game_over or (len(game.get_blank_spaces()) == 0) # TODO: is this correct?
+
+        if(game_over):
+            return game.utility(active_player) # am I supposed to use self.score here?
+
+        utility = float("inf")
+
+        legal_moves = game.get_legal_moves(active_player)
+
+        for index, move in enumerate(legal_moves) :
+            forecast = game.forecast_move(move)
+            utility = min(utility, self.max_value(forecast))
+        
+        return utility
 
     def minimax(self, game, depth):
         """Implement depth-limited minimax search algorithm as described in
@@ -217,54 +263,15 @@ class MinimaxPlayer(IsolationPlayer):
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
-        for move in enumerate(legal_moves) :
-            new_utility = max(utility, min_value(game.forecast_move(move)))
+        for index, move in enumerate(legal_moves) :
+            forecast = game.forecast_move(move)
+            new_utility = max(utility, self.min_value(forecast))
             if(new_utility > utility):
                 utility = new_utility
                 best_move = move
 
         return best_move
 
-    def max_value(self, game):
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        active_player = game.active_player()
-
-        game_over = game.is_winner(active_player)
-        game_over = game_over or game.is_loser(active_player)
-        game_over = game_over or (len(game.get_blank_spaces() == 0)) # TODO: is this correct?
-
-        if(game_over):
-            return game.utility(active_player) # am I supposed to use self.score here?
-        
-        utility = float("-inf")
-
-        legal_moves = game.get_legal_moves(active_player)
-
-        for move in enumerate(legal_moves):
-            utility = max(utility, min_value(game.forecast_move(move)))
-        
-        return utility
-
-    def min_value(self, game):
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        active_player = game.active_player()
-        game_over = game.is_winner(active_player) or game.is_loser(active_player)
-
-        if(game_over):
-            return game.utility(active_player) # am I supposed to use self.score here?
-
-        utility = float("inf")
-
-        legal_moves = game.get_legal_moves(active_player)
-
-        for move in enumerate(legal_moves) :
-            utility = min(utility, max_value(game.forecast_move(move)))
-        
-        return utility
 
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
@@ -305,7 +312,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.time_left = time_left
 
         # TODO: finish this function!
-        raise NotImplementedError
+        # raise NotImplementedError
+        return (-1, -1)
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
