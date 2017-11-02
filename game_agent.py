@@ -217,7 +217,7 @@ class MinimaxPlayer(IsolationPlayer):
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
-        foreach(move in enumerate(legal_moves)):
+        for move in enumerate(legal_moves) :
             new_utility = max(utility, min_value(game.forecast_move(move)))
             if(new_utility > utility):
                 utility = new_utility
@@ -242,7 +242,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         legal_moves = game.get_legal_moves(active_player)
 
-        foreach(move in enumerate(legal_moves)):
+        for move in enumerate(legal_moves):
             utility = max(utility, min_value(game.forecast_move(move)))
         
         return utility
@@ -261,7 +261,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         legal_moves = game.get_legal_moves(active_player)
 
-        foreach(move in enumerate(legal_moves)):
+        for move in enumerate(legal_moves) :
             utility = min(utility, max_value(game.forecast_move(move)))
         
         return utility
