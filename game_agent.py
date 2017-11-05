@@ -35,6 +35,7 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
+    print("custom_score")
     raise NotImplementedError
 
 
@@ -61,6 +62,7 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
+    print("custom_score_2")
     raise NotImplementedError
 
 
@@ -87,6 +89,7 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
+    print("custom_score_3")
     raise NotImplementedError
 
 
@@ -154,6 +157,7 @@ class MinimaxPlayer(IsolationPlayer):
             (-1, -1) if there are no available legal moves.
         """
         self.time_left = time_left
+        print("Player: " + str(game.active_player))
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
@@ -162,16 +166,18 @@ class MinimaxPlayer(IsolationPlayer):
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            best_move = self.minimax(game, self.search_depth)
 
         except SearchTimeout:
+            print("timed out")
+            # TODO: is this where it gets to before printing???
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
-        print("Best move is: " + str(best_move))
+        print(best_move) #TODO: because it's never getting here
         return best_move
 
-    def max_value(self, game):
+    def max_value(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
@@ -179,32 +185,52 @@ class MinimaxPlayer(IsolationPlayer):
 
         game_over = game.is_winner(active_player)
         game_over = game_over or game.is_loser(active_player)
-        game_over = game_over or (len(game.get_blank_spaces()) == 0) # TODO: is this correct?
+        game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
+
+        depth_reached = game.move_count >= depth
 
         if(game_over):
-            return game.utility(active_player) # am I supposed to use self.score here?
-        
+            print("game over - max_value")
+            # return game.utility(active_player) # am I supposed to use self.score here?
+            return self.score(game, active_player)
+
+        if(depth_reached):
+            print("depth reached - max_value")
+            return self.score(game, active_player)
+            
+
+
         utility = float("-inf")
 
         legal_moves = game.get_legal_moves(active_player)
 
         for index, move in enumerate(legal_moves):
             forecast = game.forecast_move(move)
-            utility = max(utility, self.min_value(forecast))
+            utility = max(utility, self.min_value(forecast, depth))
         
         return utility
 
-    def min_value(self, game):
+    def min_value(self, game, depth):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
         active_player = game.active_player
         game_over = game.is_winner(active_player)
         game_over = game_over or game.is_loser(active_player)
-        game_over = game_over or (len(game.get_blank_spaces()) == 0) # TODO: is this correct?
+        game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
+
+        depth_reached = game.move_count >= depth
 
         if(game_over):
-            return game.utility(active_player) # am I supposed to use self.score here?
+            print("game over - min_value")
+            # return game.utility(active_player) # am I supposed to use self.score here? I don't think game.utility works without fully expanding the tree... which is not practical, we need to use a heuristic
+            return self.score(game, active_player)
+
+        if(depth_reached):
+            #print("depth reached(" + str(depth) + ") - min_value")
+            scr = self.score(game, active_player)
+            #print("Depth reached for min_value, returning score: " + str(scr))
+            return scr
 
         utility = float("inf")
 
@@ -212,8 +238,9 @@ class MinimaxPlayer(IsolationPlayer):
 
         for index, move in enumerate(legal_moves) :
             forecast = game.forecast_move(move)
-            utility = min(utility, self.max_value(forecast))
+            utility = min(utility, self.max_value(forecast, depth))
         
+        print("utility is: " + utility)
         return utility
 
     def minimax(self, game, depth):
@@ -255,6 +282,7 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
+
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
@@ -265,11 +293,12 @@ class MinimaxPlayer(IsolationPlayer):
 
         for index, move in enumerate(legal_moves) :
             forecast = game.forecast_move(move)
-            new_utility = max(utility, self.min_value(forecast))
+            new_utility = max(utility, self.min_value(forecast, depth))
             if(new_utility > utility):
                 utility = new_utility
                 best_move = move
 
+        #print("Best move is: " + str(best_move))
         return best_move
 
 
@@ -310,6 +339,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             (-1, -1) if there are no available legal moves.
         """
         self.time_left = time_left
+        print("Current player is: " + str(game.active_player))
 
         # TODO: finish this function!
         # raise NotImplementedError

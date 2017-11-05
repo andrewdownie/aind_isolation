@@ -323,7 +323,9 @@ class Board(object):
 
             move_start = time_millis()
             time_left = lambda : time_limit - (time_millis() - move_start)
+            print("-----call get move")
             curr_move = self._active_player.get_move(game_copy, time_left)
+            print("Curr move is : " + str(curr_move))
             move_end = time_left()
 
             if curr_move is None:
@@ -334,7 +336,16 @@ class Board(object):
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
+                    # if there is more than zero legal moves, and we make an invalid move
+                    # -> we forfeit
+                    """
+                    print("dun dun dunnnnnnnnnn")
+                    print(legal_player_moves)
+                    print(curr_move)
+                    """
                     return self._inactive_player, move_history, "forfeit"
+                # otherwise we make an illegal move???? what how are these different?
+                # shouldn't this be like "lost because no more moves" or something
                 return self._inactive_player, move_history, "illegal move"
 
             move_history.append(list(curr_move))
