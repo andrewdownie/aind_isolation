@@ -399,8 +399,18 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        #TODO: the pseudo code
-        raise NotImplementedError
+        best_move = (-1, -1)
+        legal_moves = game.get_legal_moves()
+        utility = float("-inf")
+
+        for index, move in enumerate(legal_moves):
+            forecast = game.forecast_move(move)
+            new_utility = max(utility, self.min_value(forecast, alpha, beta, depth))
+            if(new_utility > utility):
+                utility = new_utility
+                best_move = move
+        
+        return best_move
 
 
     def max_value(self, game, alpha, beta, depth):
