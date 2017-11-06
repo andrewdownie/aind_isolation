@@ -35,8 +35,8 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    print("custom_score")
-    raise NotImplementedError
+    #print("custom_score - return random valid move")
+    return 1
 
 
 def custom_score_2(game, player):
@@ -62,8 +62,8 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    print("custom_score_2")
-    raise NotImplementedError
+    #print("custom_score_2")
+    return 1
 
 
 def custom_score_3(game, player):
@@ -89,8 +89,8 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    print("custom_score_3")
-    raise NotImplementedError
+    #print("custom_score_3")
+    return 1
 
 
 class IsolationPlayer:
@@ -346,8 +346,8 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         best_move = (-1, -1)
         try:
-            #TODO: make this IDS
-            best_move = self.alphabeta(game, self.search_depth)
+            for search_depth in range(1, self.search_depth):
+                best_move = self.alphabeta(game, search_depth)
 
         except SearchTimeout:
             print("timed out")
