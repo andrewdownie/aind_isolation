@@ -34,9 +34,17 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #print("custom_score - return random valid move")
-    return 1
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+    return float((h - y)**2 + (w - x)**2)
+    #TODO: sqrt the score to make distance from center less extreme
+    #TODO: as the number of turns go on, decrease incentive to be near center?
 
 
 def custom_score_2(game, player):
@@ -64,6 +72,7 @@ def custom_score_2(game, player):
     # TODO: finish this function!
     #print("custom_score_2")
     return 1
+    #TODO: try to trap the other player?
 
 
 def custom_score_3(game, player):
@@ -91,6 +100,7 @@ def custom_score_3(game, player):
     # TODO: finish this function!
     #print("custom_score_3")
     return 1
+    #TODO: cut the board in half?
 
 
 class IsolationPlayer:
