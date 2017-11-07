@@ -294,10 +294,13 @@ class MinimaxPlayer(IsolationPlayer):
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
+        if(len(legal_moves) == 1):
+            return legal_moves[0]
+
         for index, move in enumerate(legal_moves) :
             forecast = game.forecast_move(move)
             new_utility = max(utility, self.min_value(forecast, depth))
-            if(new_utility > utility):
+            if(new_utility > utility or best_move == (-1, -1)):
                 utility = new_utility
                 best_move = move
 
