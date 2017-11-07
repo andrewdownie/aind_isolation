@@ -325,6 +325,11 @@ class Board(object):
             time_left = lambda : time_limit - (time_millis() - move_start)
             #print("-----call get move")
             curr_move = self._active_player.get_move(game_copy, time_left)
+            if(curr_move == (-1, -1) and len(self.get_legal_moves()) > 0):
+                if(self._active_player == self._player_1):
+                    print("\n----Player 1's turn----")
+                else:
+                    print("\n----Player 2's turn----")
             #print("Curr move is : " + str(curr_move))
             move_end = time_left()
 

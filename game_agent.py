@@ -34,10 +34,9 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    mc = game.move_count
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return own_moves - opp_moves - mc ** 2
+    return own_moves - opp_moves
 
 
 
@@ -63,10 +62,9 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #print("custom_score_2")
+    #opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    #return -opp_moves
     return 1
-    #TODO: try to trap the other player?
 
 
 def custom_score_3(game, player):
@@ -93,7 +91,8 @@ def custom_score_3(game, player):
     """
     # TODO: finish this function!
     #print("custom_score_3")
-    return 1
+    moves = len(game.get_blank_spaces())
+    return moves
     #TODO: cut the board in half?
 
 
@@ -351,11 +350,22 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = (-1, -1)
         try:
             for search_depth in range(1, self.search_depth):
-                best_move = self.alphabeta(game, search_depth)
+                if self.time_left() >= self.TIMER_THRESHOLD:
+                    best_move = self.alphabeta(game, search_depth)
+                else:
+                    print("\nIt timed out: " + str(best_move))
+                    print("\t" + str(self.time_left()))
+                    print("\t" + str(self.TIMER_THRESHOLD))
+                    return best_move
 
         except SearchTimeout:
-            print("timed out")
+            print("except: timed out")
 
+
+        if(best_move not in game.get_legal_moves() and len(game.get_legal_moves()) > 0):
+            #TODO: how do I print the active strat for the current player?
+            print(str(best_move) + " is an illegal move by player: " + str(game.active_player))
+            print("Legal moves are: " + str(game.get_legal_moves()))
         return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -407,12 +417,28 @@ class AlphaBetaPlayer(IsolationPlayer):
         legal_moves = game.get_legal_moves()
         utility = float("-inf")
 
+        if(len(legal_moves) == 1):
+            return legal_moves[0]
+
+        """
+        if(len(legal_moves) > 0):
+            best_move = legal_moves[0]
+        """
+
         for index, move in enumerate(legal_moves):
+
             forecast = game.forecast_move(move)
             new_utility = max(utility, self.min_value(forecast, alpha, beta, depth))
-            if(new_utility > utility):
+            if(new_utility > utility or best_move == (-1, -1)):
                 utility = new_utility
                 best_move = move
+
+        """
+        if(best_move == (-1, -1) and len(legal_moves) > 0):
+            #TODO: why is legal moves empty sometimes, but then has elements later on the same turn?
+            print(legal_moves)
+            print("uh oh spaghetti oh's")
+        """
         
         return best_move
 
