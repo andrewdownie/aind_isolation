@@ -34,17 +34,11 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    if game.is_loser(player):
-        return float("-inf")
+    mc = game.move_count
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return own_moves - opp_moves - mc ** 2
 
-    if game.is_winner(player):
-        return float("inf")
-
-    w, h = game.width / 2., game.height / 2.
-    y, x = game.get_player_location(player)
-    return float((h - y)**2 + (w - x)**2)
-    #TODO: sqrt the score to make distance from center less extreme
-    #TODO: as the number of turns go on, decrease incentive to be near center?
 
 
 def custom_score_2(game, player):
