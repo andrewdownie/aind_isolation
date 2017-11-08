@@ -3,6 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
+import math
 
 
 class SearchTimeout(Exception):
@@ -37,15 +38,16 @@ def custom_score(game, player):
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
+
+    # ---- bottom right ab improved
+
     # If we are equal or behind, make it a priority to not fall any further behind
     if(own_moves <= opp_moves):
         return own_moves - opp_moves
     # If we are ahead, do something unique (fill up the bottom right corner)
-    else:
-        y, x = game.get_player_location(player)
-        return x + y
+    y, x = game.get_player_location(player)
+    return x + y
 
-    return 0
 
 
 
@@ -68,12 +70,17 @@ def custom_score_2(game, player):
 
     Returns
     -------
-    float
+
         The heuristic value of the current game state to the specified player.
     """
-    #opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    #return -opp_moves
-    return 1
+
+
+    # ---- chase the opponent
+
+    # Try to move as close as possible to where the other player last moved
+    opp_y, opp_x = game.get_player_location(game.get_opponent(player))
+    y, x = game.get_player_location(player)
+    return float((opp_x - y)**2 + (opp_y - x)**2)
 
 
 def custom_score_3(game, player):
@@ -98,11 +105,21 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #print("custom_score_3")
-    moves = len(game.get_blank_spaces())
-    return moves
-    #TODO: cut the board in half?
+
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    move_diff = float(own_moves - opp_moves)
+
+
+    opp_y, opp_x = game.get_player_location(game.get_opponent(player))
+    y, x = game.get_player_location(player)
+    dx = abs(x - opp_x) ** 2
+    dy = abs(y - opp_y) ** 2
+    opp_dist = math.sqrt(dx + dy)
+
+
+    return opp_dist + move_diff
 
 
 class IsolationPlayer:
@@ -122,7 +139,7 @@ class IsolationPlayer:
     score_fn : callable (optional)
         A function to use for heuristic evaluation of game states.
 
-    timeout : float (optional)
+    timeout : flout (optional)
         Time remaining (in milliseconds) when search is aborted. Should be a
         positive value large enough to allow the function to return before the
         timer expires.
