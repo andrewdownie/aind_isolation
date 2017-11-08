@@ -36,7 +36,16 @@ def custom_score(game, player):
     """
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return own_moves - opp_moves
+
+    # If we are equal or behind, make it a priority to not fall any further behind
+    if(own_moves <= opp_moves):
+        return own_moves - opp_moves
+    # If we are ahead, do something unique (fill up the bottom right corner)
+    else:
+        y, x = game.get_player_location(player)
+        return x + y
+
+    return 0
 
 
 
