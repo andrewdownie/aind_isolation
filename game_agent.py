@@ -42,7 +42,7 @@ def custom_score(game, player):
     # ---- bottom right ab improved
 
     # If we are equal or behind, make it a priority to not fall any further behind
-    if(own_moves <= opp_moves):
+    if(own_moves < opp_moves):
         return own_moves - opp_moves
     # If we are ahead, do something unique (fill up the bottom right corner)
     y, x = game.get_player_location(player)
