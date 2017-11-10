@@ -39,6 +39,9 @@ def custom_score(game, player):
 
     # Try to move as close as possible to where the other player last moved
     opp_y, opp_x = game.get_player_location(game.get_opponent(player))
+    if(opp_y == -1 or opp_x == -1):
+        return (3, 3)
+        
     y, x = game.get_player_location(player)
     return float((opp_x - y)**2 + (opp_y - x)**2)
 
@@ -75,10 +78,10 @@ def custom_score_2(game, player):
 
     # If we are equal or behind, make it a priority to not fall any further behind
     if(own_moves < opp_moves):
-        return own_moves - opp_moves
+        return float(own_moves - opp_moves)
     # If we are ahead, do something unique (fill up the bottom right corner)
     y, x = game.get_player_location(player)
-    return x + y
+    return float(x + y)
 
 
 
@@ -121,7 +124,7 @@ def custom_score_3(game, player):
     opp_dist = math.sqrt(dx + dy)
 
 
-    return opp_dist + move_diff
+    return float(opp_dist + move_diff)
 
 
 class IsolationPlayer:
@@ -271,7 +274,7 @@ class MinimaxPlayer(IsolationPlayer):
             forecast = game.forecast_move(move)
             utility = min(utility, self.max_value(forecast, depth))
         
-        print("utility is: " + utility)
+        #print("utility is: " + utility)
         return utility
 
     def minimax(self, game, depth):
@@ -322,15 +325,17 @@ class MinimaxPlayer(IsolationPlayer):
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
-        if(len(legal_moves) == 1):
-            return legal_moves[0]
+        if(len(legal_moves) > 0):
+            best_move = legal_moves[0]
+            print(best_move)
 
         for index, move in enumerate(legal_moves) :
             forecast = game.forecast_move(move)
             new_utility = max(utility, self.min_value(forecast, depth))
-            if(new_utility > utility or best_move == (-1, -1)):
+            if(new_utility > utility):
                 utility = new_utility
                 best_move = move
+                print(best_move)
 
         #print("Best move is: " + str(best_move))
         return best_move
