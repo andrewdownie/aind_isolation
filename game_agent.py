@@ -37,10 +37,11 @@ def custom_score(game, player):
 
     # ---- chase the opponent
 
-    # Try to move as close as possible to where the other player last moved
-    opp_y, opp_x = game.get_player_location(game.get_opponent(player))
-    if(opp_y == -1 or opp_x == -1):
+# Try to move as close as possible to where the other player last moved
+    if(None == game.get_player_location(game.get_opponent(player))):
         return (3, 3)
+
+    opp_y, opp_x = game.get_player_location(game.get_opponent(player))
         
     y, x = game.get_player_location(player)
     return float((opp_x - y)**2 + (opp_y - x)**2)
@@ -111,7 +112,6 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
     move_diff = float(own_moves - opp_moves)
@@ -149,6 +149,7 @@ class IsolationPlayer:
         positive value large enough to allow the function to return before the
         timer expires.
     """
+    # TODO: setting seach_depth=25 fixes test case 9.... how is this value supposed to be passed in from the test case?
     def __init__(self, search_depth=3, score_fn=custom_score, timeout=10.):
         self.search_depth = search_depth
         self.score = score_fn
@@ -320,22 +321,22 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        active_player = game.active_player
+
         best_move = (-1, -1)
 
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
-        if(len(legal_moves) > 0):
-            best_move = legal_moves[0]
-            print(best_move)
+        #if(len(legal_moves) > 0):
+        #    best_move = legal_moves[0]
 
         for index, move in enumerate(legal_moves) :
             forecast = game.forecast_move(move)
             new_utility = max(utility, self.min_value(forecast, depth))
-            if(new_utility > utility):
+            if(new_utility >= utility):
                 utility = new_utility
                 best_move = move
-                print(best_move)
 
         #print("Best move is: " + str(best_move))
         return best_move
@@ -398,10 +399,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             print("except: timed out")
 
 
-        if(best_move not in game.get_legal_moves() and len(game.get_legal_moves()) > 0):
-            #TODO: how do I print the active strat for the current player?
-            print(str(best_move) + " is an illegal move by player: " + str(game.active_player))
-            print("Legal moves are: " + str(game.get_legal_moves()))
         return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -453,8 +450,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         legal_moves = game.get_legal_moves()
         utility = float("-inf")
 
-        if(len(legal_moves) == 1):
-            return legal_moves[0]
 
         """
         if(len(legal_moves) > 0):
@@ -465,7 +460,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             forecast = game.forecast_move(move)
             new_utility = max(utility, self.min_value(forecast, alpha, beta, depth))
-            if(new_utility > utility or best_move == (-1, -1)):
+            if(new_utility >= utility):
                 utility = new_utility
                 best_move = move
 
