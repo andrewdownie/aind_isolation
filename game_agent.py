@@ -216,8 +216,7 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        active_player = game.active_player
-
+        """active_player = game.active_player
         game_over = game.is_winner(active_player)
         game_over = game_over or game.is_loser(active_player)
         game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
@@ -231,17 +230,18 @@ class MinimaxPlayer(IsolationPlayer):
 
         if(depth_reached):
             print("depth reached - max_value")
-            return self.score(game, active_player)
-            
-
+            return self.score(game, active_player)""" # TODO: delete this
 
         utility = float("-inf")
 
-        legal_moves = game.get_legal_moves(active_player)
+        legal_moves = game.get_legal_moves()
 
-        for index, move in enumerate(legal_moves):
+        if not legal_moves or depth==0:
+            return self.score(game, self)
+
+        for move in legal_moves:
             forecast = game.forecast_move(move)
-            utility = max(utility, self.min_value(forecast, depth))
+            utility = max(utility, self.min_value(forecast, depth - 1))
         
         return utility
 
@@ -249,31 +249,31 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        active_player = game.active_player
+        """active_player = game.active_player
         game_over = game.is_winner(active_player)
         game_over = game_over or game.is_loser(active_player)
         game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
-
         depth_reached = game.move_count >= depth
-
         if(game_over):
             #print("game over - min_value")
             # return game.utility(active_player) # am I supposed to use self.score here? I don't think game.utility works without fully expanding the tree... which is not practical, we need to use a heuristic
             return self.score(game, active_player)
-
         if(depth_reached):
             #print("depth reached(" + str(depth) + ") - min_value")
             scr = self.score(game, active_player)
             #print("Depth reached for min_value, returning score: " + str(scr))
-            return scr
+            return scr """ # TODO: delete this
 
         utility = float("inf")
 
-        legal_moves = game.get_legal_moves(active_player)
+        legal_moves = game.get_legal_moves()
 
-        for index, move in enumerate(legal_moves) :
+        if not legal_moves or depth==0:
+            return self.score(game, self)
+
+        for move in legal_moves:
             forecast = game.forecast_move(move)
-            utility = min(utility, self.max_value(forecast, depth))
+            utility = min(utility, self.max_value(forecast, depth - 1))
         
         #print("utility is: " + utility)
         return utility
@@ -321,19 +321,19 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        active_player = game.active_player
+        #active_player = game.active_player # TODO: delete this line
 
         best_move = (-1, -1)
 
         utility = float("-inf")
         legal_moves = game.get_legal_moves()
 
-        #if(len(legal_moves) > 0):
-        #    best_move = legal_moves[0]
+        if(len(legal_moves) > 0):
+            best_move = legal_moves[0]
 
-        for index, move in enumerate(legal_moves) :
+        for move in legal_moves:
             forecast = game.forecast_move(move)
-            new_utility = max(utility, self.min_value(forecast, depth))
+            new_utility = self.min_value(forecast, depth - 1)
             if(new_utility >= utility):
                 utility = new_utility
                 best_move = move
