@@ -378,14 +378,28 @@ class AlphaBetaPlayer(IsolationPlayer):
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
-        if not game.get_legal_moves()[0]:
-            try:
-                depth=1
-                while True:
-                    best_move = self.alphabeta(game, depth)
-                    depth+=1
-            except SearchTimeout:
-                print("except: timed out")
+        self.time_left = time_left
+
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+
+        best_move = (-1, -1)
+        try:
+            for search_depth in range(1, self.search_depth):
+                if self.time_left() >= self.TIMER_THRESHOLD:
+                    best_move = self.alphabeta(game, search_depth)
+                else:
+                    print("\nIt timed out: " + str(best_move))
+                    print("\t" + str(self.time_left()))
+                    print("\t" + str(self.TIMER_THRESHOLD))
+                    return best_move
+
+        except SearchTimeout:
+            print("except: timed out")
+
+
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -432,13 +446,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        if not game.get_legal_moves():
-            return (-1, -1)
+        best_move = (-1, -1)
         legal_moves = game.get_legal_moves()
-        best_move = legal_moves[0]
         utility = float("-inf")
 
 
@@ -447,14 +456,13 @@ class AlphaBetaPlayer(IsolationPlayer):
             best_move = legal_moves[0]
         """
 
-        for move in legal_moves:
+        for index, move in enumerate(legal_moves):
 
             forecast = game.forecast_move(move)
-            new_utility = max(utility, self.min_value(forecast, alpha, beta, depth))
-            if(new_utility > utility):
+            new_utility = self.min_value(forecast, alpha, beta, depth - 1)
+            if(new_utility >= utility):
                 utility = new_utility
                 best_move = move
-            alpha = max(alpha, utility)
 
         """
         if(best_move == (-1, -1) and len(legal_moves) > 0):
@@ -470,11 +478,26 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        active_player = game.active_player
+        game_over = game.is_winner(active_player)
+        game_over = game_over or game.is_loser(active_player)
+        game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
+
+        depth_reached = game.move_count >= depth
+
+        if(game_over):
+            scr = self.score(game, active_player)
+            return scr
+
+        if(depth_reached):
+            scr = self.score(game, active_player)
+            return scr
+
         utility = float("-inf")
 
-        legal_moves = game.get_legal_moves()
+        legal_moves = game.get_legal_moves(active_player)
 
-        for move in legal_moves:
+        for index, move in enumerate(legal_moves):
             forecast = game.forecast_move(move)
             utility = max(utility, self.min_value(forecast, alpha, beta, depth))
 
@@ -489,11 +512,26 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        active_player = game.active_player
+        game_over = game.is_winner(active_player)
+        game_over = game_over or game.is_loser(active_player)
+        game_over = game_over or (len(game.get_legal_moves()) == 0) # TODO: is this correct?
+
+        depth_reached = game.move_count >= depth
+
+        if(game_over):
+            scr = self.score(game, active_player)
+            return scr
+
+        if(depth_reached):
+            scr = self.score(game, active_player)
+            return scr
+
         utility = float("inf")
 
-        legal_moves = game.get_legal_moves()
+        legal_moves = game.get_legal_moves(active_player)
 
-        for move in legal_moves:
+        for index, move in enumerate(legal_moves):
             forecast = game.forecast_move(move)
             utility = min(utility, self.max_value(forecast, alpha, beta, depth))
 
