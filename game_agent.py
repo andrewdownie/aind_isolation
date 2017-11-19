@@ -378,6 +378,8 @@ class AlphaBetaPlayer(IsolationPlayer):
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
+        #TODO: old
+        """
         if not game.get_legal_moves()[0]:
             try:
                 depth=1
@@ -386,6 +388,21 @@ class AlphaBetaPlayer(IsolationPlayer):
                     depth+=1
             except SearchTimeout:
                 print("except: timed out")
+        """
+
+        #TODO: new
+        #TODO: self.time_left() is a null reference and causes an exception
+        if not game.get_legal_moves():
+            return (-1, -1)
+        best_move = game.get_legal_moves()[0]
+        try:
+            depth=1
+            while True:
+                best_move = self.alphabeta(game, depth)
+                depth+=1
+        except SearchTimeout:
+            pass
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
