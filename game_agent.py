@@ -391,7 +391,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
 
         #TODO: new
-        #TODO: self.time_left() is a null reference and causes an exception
+        self.time_left = time_left
         if not game.get_legal_moves():
             return (-1, -1)
         best_move = game.get_legal_moves()[0]
@@ -403,6 +403,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         except SearchTimeout:
             pass
         return best_move
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
