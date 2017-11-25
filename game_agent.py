@@ -150,7 +150,7 @@ class IsolationPlayer:
         timer expires.
     """
     # TODO: setting seach_depth=25 fixes test case 9.... how is this value supposed to be passed in from the test case?
-    def __init__(self, search_depth=3, score_fn=custom_score, timeout=10.):
+    def __init__(self, search_depth=3, score_fn=custom_score, timeout=50.):
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
@@ -334,7 +334,7 @@ class MinimaxPlayer(IsolationPlayer):
         for move in legal_moves:
             forecast = game.forecast_move(move)
             new_utility = self.min_value(forecast, depth - 1)
-            if(new_utility >= utility):
+            if(new_utility > utility):
                 utility = new_utility
                 best_move = move
 
